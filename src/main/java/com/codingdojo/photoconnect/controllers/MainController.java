@@ -48,7 +48,11 @@ public class MainController {
 	}
 	
 	@GetMapping("/gallery")
-	public String gallery(Model model) {
+	public String gallery(Model model, HttpSession session) {
+		if (session.getAttribute("userId") != null ) {
+			Long id = (Long) session.getAttribute("userId");
+			model.addAttribute("currentUser", userService.findUser(id));
+    	}
 		model.addAttribute("mediaList", mediaService.getAllMedia());
 		return "gallery.jsp";
 	}
@@ -108,28 +112,30 @@ public class MainController {
 	            @RequestParam("file") MultipartFile file,
 	            @RequestParam("caption") String caption,
 	            @PathVariable("userId") Long userId,
-	            Model model) {
+	            Model model, HttpSession session) {
+	    	
+	    	Long id = (Long) session.getAttribute("userId");
+	    	model.addAttribute("currentUser", userService.findUser(id));
+        	model.addAttribute("mediaList", mediaService.getAllMedia());
+			
 	        try {
 	            // Validate file size (limit: 100MB)
 	            if (file.getSize() > (100 * 1024 * 1024)) {
-	            	model.addAttribute("mediaList", mediaService.getAllMedia());
 	                model.addAttribute("error", "File size exceeds the maximum allowed size of 100MB.");
-	                return "gallery.jsp"; // Return to the gallery page with the error
+	                return "gallery.jsp";
 	            }
 	            
 	         // Validate caption length (3 to 30 characters)
-	            if (caption == null || caption.trim().length() < 3 || caption.trim().length() > 30) { // <-- NEW
-	                model.addAttribute("mediaList", mediaService.getAllMedia());                   // <-- NEW
-	                model.addAttribute("error", "Caption must be between 3 and 30 characters.");   // <-- NEW
-	                return "gallery.jsp"; // Return to the gallery page with the error             // <-- NEW
+	            if (caption == null || caption.trim().length() < 3 || caption.trim().length() > 30) {
+	                model.addAttribute("error", "Caption must be between 3 and 30 characters.");
+	                return "gallery.jsp";
 	            }
 
 	            // Determine file type
 	            String originalFilename = file.getOriginalFilename();
 	            if (originalFilename == null || !originalFilename.contains(".")) {
-	            	model.addAttribute("mediaList", mediaService.getAllMedia());
 	                model.addAttribute("error", "Invalid file. Could not determine file type.");
-	                return "gallery.jsp"; // Return to the gallery page with the error
+	                return "gallery.jsp";
 	            }
 
 	            String extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
@@ -141,9 +147,8 @@ public class MainController {
 	            } else if (extension.matches("(?i)(mp4|avi|mov|wmv)")) {
 	                mediaType = Media.MediaType.VIDEO;
 	            } else {
-	            	model.addAttribute("mediaList", mediaService.getAllMedia());
 	                model.addAttribute("error", "Unsupported file type. Only images and videos are allowed.");
-	                return "gallery.jsp"; // Return to the gallery page with the error
+	                return "gallery.jsp";
 	            }
 
 	            // Generate a unique file name
@@ -161,13 +166,11 @@ public class MainController {
 	            mediaService.saveMedia(uniqueFileName, caption, userService.findUser(userId), mediaType);
 
 	        } catch (IOException e) {
-	        	model.addAttribute("mediaList", mediaService.getAllMedia());
 	            model.addAttribute("error", "Failed to upload media due to an internal error: " + e.getMessage());
-	            return "gallery.jsp"; // Return to the gallery page with the error
+	            return "gallery.jsp";
 	        } catch (RuntimeException e) {
-	        	model.addAttribute("mediaList", mediaService.getAllMedia());
 	            model.addAttribute("error", "Invalid file or unsupported file type: " + e.getMessage());
-	            return "gallery.jsp"; // Return to the gallery page with the error
+	            return "gallery.jsp";
 	        }
 
 	        return "redirect:/gallery"; // Success, redirect to gallery

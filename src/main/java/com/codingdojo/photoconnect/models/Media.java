@@ -52,6 +52,10 @@ public class Media {
     private List<User> likes;
 	
 	public Media() {}
+	
+	public Boolean likedByUser(User user) {
+		return this.likes.contains(user);
+	}
 
 	public Long getId() {
 		return id;

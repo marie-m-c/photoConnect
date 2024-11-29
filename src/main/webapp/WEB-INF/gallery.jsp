@@ -103,10 +103,10 @@ pageEncoding="ISO-8859-1"%> <%@ taglib prefix = "c" uri ="http://java.sun.com/js
 			<section>
 				<div class="container mt-4">
     				<h1 class="text-start text-primary mb-4">Gallery</h1>
-    				<div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
+    				<div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
         				<c:forEach var="media" items="${mediaList}">
             				<div class="col">
-                				<div class="card position-relative mb-4" style="height: 300px;" >
+                				<div class="card position-relative mb-4" style="height: 300px; min-width: 200px;" >
                 				<div class="h-100">
                     				<c:choose>
                     					<c:when test="${media.mediaType == 'PHOTO'}">
@@ -127,13 +127,20 @@ pageEncoding="ISO-8859-1"%> <%@ taglib prefix = "c" uri ="http://java.sun.com/js
                     				<div class="card-body">
                     					<c:choose>
                     						<c:when test="${loggedIn}">
-                        						<p class="card-text position-absolute" style="bottom: -35px; left: 5px;">
+                        						<p class="position-absolute" style="bottom: -55px; left: 5px;">
                         							<a href="/profile/${userId }" class="text-primary text-decoration-none">${media.user.getAlias()} : </a>${fn:substring(media.caption, 0, 3)}..
+                        						</p>
+                        						<p class="position-absolute" style="bottom: -55px; right: 5px;">
+                        							<i class="fas fa-thumbs-up like-icon ${media.likedByUser(currentUser) ? 'text-primary' : ''}" data-media-id="${media.id}"></i>&nbsp;&nbsp;
+                            						<span class="text-primary"><span class="like-count">${media.getLikes().size()}</span> likes</span>
                         						</p>
                         					</c:when>
                         					<c:otherwise>
-                        						<p class="card-text position-absolute" style="bottom: -35px; left: 5px;">
+                        						<p class="position-absolute" style="bottom: -55px; left: 5px;">
                         							<a href="/login" class="text-primary text-decoration-none">${media.user.getAlias()} : </a>${fn:substring(media.caption, 0, 3)}..
+                        						</p>
+                        						<p class="position-absolute" style="bottom: -55px; right: 5px;">
+                            						<span class="text-primary"><span class="like-count">${media.getLikes().size()}</span> likes</span>
                         						</p>
                         					</c:otherwise>
                         				</c:choose>
@@ -148,5 +155,48 @@ pageEncoding="ISO-8859-1"%> <%@ taglib prefix = "c" uri ="http://java.sun.com/js
 	</div>
 	
 	<script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+	<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        document.querySelectorAll('.like-icon').forEach(icon => {
+            icon.addEventListener('click', function() {
+
+                const mediaId = icon.getAttribute('data-media-id');
+                if (!mediaId) {
+                    console.error("mediaId is missing for the clicked element.");
+                    return;
+                }
+                
+
+                const isLiked = icon.classList.contains('text-primary');
+				apiUrl = "/api/likes/" + mediaId + "/toggle"
+
+                fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                        console.log(data)
+                        icon.classList.toggle('text-primary', !isLiked);
+
+                        const likeCountSpan = icon.nextElementSibling;
+                        likeCountSpan.textContent = data + "  likes";
+                })
+                .catch(error => console.error("Error during fetch:", error));
+            });
+        });
+    });
+</script>
+
+
+	
 </body>
 </html>
