@@ -91,8 +91,6 @@
 			</div>
 		</main>	
 	</div>
-	<!-- <div class="row mt-3 mb-5 pb-3">
-						<div class="col-12"> -->
     <script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
 </body>
 </html>

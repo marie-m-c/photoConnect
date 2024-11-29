@@ -27,4 +27,8 @@ public class MediaService {
 	public List<Media> getAllMedia() {
         return mediaRepository.findAll(); // Fetch all media from the database
     }
+	
+		public void deleteMedia(Long id) {
+			mediaRepository.deleteById(id);
+		}
 }

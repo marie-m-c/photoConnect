@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 pageEncoding="ISO-8859-1"%> <%@ taglib prefix = "c" uri ="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isErrorPage="true" %>    
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <!DOCTYPE html>
@@ -75,8 +76,14 @@ pageEncoding="ISO-8859-1"%> <%@ taglib prefix = "c" uri ="http://java.sun.com/js
 			<section>
 			<div class="container mt-4">
 				<h1 class="text-start text-primary mb-4">Upload New Media</h1>
+				<!-- Display error if present -->
+				<c:if test="${not empty error}">
+    				<div class="alert alert-danger cursor-pointer" onclick="window.location.href='${pageContext.request.contextPath}/gallery'">
+        				${error}
+    				</div>
+				</c:if>
 				<div class="border">
-					<form action="/media/uploadFile/${userId}" method="post" enctype="multipart/form-data" class="form d-flex align-items-center justify-content-between">
+					<form action="/media/uploadFile/${userId}" method="post" enctype="multipart/form-data" class="form d-flex align-items-center justify-content-between form-upload">
 						<div class="me-4">
   							<label for="mediaFile" class="form-label text-primary ms-4">Media <i class="fas fa-image"></i> <i class="fas fa-video"></i></label>
   							<input class="form-control-sm d-none" type="file" id="mediaFile" name="file" required>
@@ -85,7 +92,7 @@ pageEncoding="ISO-8859-1"%> <%@ taglib prefix = "c" uri ="http://java.sun.com/js
   							<label for="media-caption" class="form-label text-primary">caption </label>
   							<input class="form-control-sm" id="media-caption" name="caption" required>
 						</div>
-						<input type="submit" class="btn btn-primary btn-sm" value="Upload">
+						<button type="submit" class="btn btn-primary"> Upload </button>
 					</form>
 				</div>
 			</div>
@@ -110,13 +117,24 @@ pageEncoding="ISO-8859-1"%> <%@ taglib prefix = "c" uri ="http://java.sun.com/js
                         				</c:otherwise>
                         			</c:choose>
                         			</div>
+                        			<c:if test="${media.getUser().getId() == userId }">
+ 									<form action="/medias/${media.getId()}/delete" method="post">
+ 										<input type="hidden" name="_method" value="delete" />
+ 										<label for="delete-media-${media.getId()}" class="position-absolute delete-cross"><i class="fas fa-times delete-cross-icon"></i></label>
+ 										<input type="submit" class="d-none" value="delete" id="delete-media-${media.getId()}" />
+ 									</form>
+ 								</c:if>
                     				<div class="card-body">
                     					<c:choose>
                     						<c:when test="${loggedIn}">
-                        						<p class="card-text position-absolute" style="bottom: -35px; left: 5px;"><a href="/profile/${userId }" class="text-primary text-decoration-none">${media.user.getAlias()} : </a>${media.caption}</p>
+                        						<p class="card-text position-absolute" style="bottom: -35px; left: 5px;">
+                        							<a href="/profile/${userId }" class="text-primary text-decoration-none">${media.user.getAlias()} : </a>${fn:substring(media.caption, 0, 3)}..
+                        						</p>
                         					</c:when>
                         					<c:otherwise>
-                        						<p class="card-text position-absolute" style="bottom: -35px; left: 5px;"><a href="/login" class="text-primary text-decoration-none">${media.user.getAlias()} : </a>${media.caption}</p>
+                        						<p class="card-text position-absolute" style="bottom: -35px; left: 5px;">
+                        							<a href="/login" class="text-primary text-decoration-none">${media.user.getAlias()} : </a>${fn:substring(media.caption, 0, 3)}..
+                        						</p>
                         					</c:otherwise>
                         				</c:choose>
                     				</div>

@@ -269,13 +269,27 @@ video {
 	color: #666666;
 }
 
-@media (min-width: 992px) {
+.delete-cross {
+	font-size: 1.5rem;
+	width: 20px;
+	height: 20px;
+	top: 20px;
+	right: 20px;
+	color: white;
+	background-color: rgba(0,0,0,0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+}
+
+@media screen and (min-width: 992px) {
     #main-nav .nav-item { margin: 20px 40px; }
     .navbar-expand-lg .navbar-nav .nav-link { padding: 8px 0px; }
     .navbar-expand-lg .navbar-collapse { justify-content: flex-end; }
 }
 
-@media (max-width: 991px) {
+@media screen and (max-width: 991px) {
     .navbar {
         max-width: 220px;
         position: absolute;
@@ -327,4 +341,17 @@ video {
     }
 
     .site-header { padding: 20px; }
+    
+    .form-upload{
+    	flex-direction: column;
+    }
+    
+    .form-upload * {
+    	margin-bottom: 20px;
+    }
+    
+    .form-upload button{
+    	height: 40px;
+    	padding: 5px 50px;
+    }
 }

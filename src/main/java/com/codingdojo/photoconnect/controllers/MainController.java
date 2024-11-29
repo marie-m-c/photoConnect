@@ -7,7 +7,9 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +23,6 @@ import com.codingdojo.photoconnect.models.User;
 import com.codingdojo.photoconnect.services.MediaService;
 import com.codingdojo.photoconnect.services.UserService;
 
-import org.springframework.ui.Model;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
@@ -106,31 +107,45 @@ public class MainController {
 	    public String uploadMedia(
 	            @RequestParam("file") MultipartFile file,
 	            @RequestParam("caption") String caption,
-	            @PathVariable("userId")Long userId) {
-	    	
-	    	// Validate file size (limit: 100MB)
-	    	try {
+	            @PathVariable("userId") Long userId,
+	            Model model) {
+	        try {
+	            // Validate file size (limit: 100MB)
 	            if (file.getSize() > (100 * 1024 * 1024)) {
-	                throw new RuntimeException("File size exceeds the maximum allowed size of 100MB.");
+	            	model.addAttribute("mediaList", mediaService.getAllMedia());
+	                model.addAttribute("error", "File size exceeds the maximum allowed size of 100MB.");
+	                return "gallery.jsp"; // Return to the gallery page with the error
 	            }
 	            
-	         // Determine file type
+	         // Validate caption length (3 to 30 characters)
+	            if (caption == null || caption.trim().length() < 3 || caption.trim().length() > 30) { // <-- NEW
+	                model.addAttribute("mediaList", mediaService.getAllMedia());                   // <-- NEW
+	                model.addAttribute("error", "Caption must be between 3 and 30 characters.");   // <-- NEW
+	                return "gallery.jsp"; // Return to the gallery page with the error             // <-- NEW
+	            }
+
+	            // Determine file type
 	            String originalFilename = file.getOriginalFilename();
 	            if (originalFilename == null || !originalFilename.contains(".")) {
-	                throw new RuntimeException("Invalid file. Could not determine file type.");
+	            	model.addAttribute("mediaList", mediaService.getAllMedia());
+	                model.addAttribute("error", "Invalid file. Could not determine file type.");
+	                return "gallery.jsp"; // Return to the gallery page with the error
 	            }
 
 	            String extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
 	            Media.MediaType mediaType;
 
 	            // Check if the file is an image or video
-	            if (extension.matches("jpg|jpeg|png|gif")) {
+	            if (extension.matches("(?i)(jpg|jpeg|png|gif)")) {
 	                mediaType = Media.MediaType.PHOTO;
-	            } else if (extension.matches("mp4|avi|mov|wmv")) {
+	            } else if (extension.matches("(?i)(mp4|avi|mov|wmv)")) {
 	                mediaType = Media.MediaType.VIDEO;
 	            } else {
-	                throw new RuntimeException("Unsupported file type. Only images and videos are allowed.");
+	            	model.addAttribute("mediaList", mediaService.getAllMedia());
+	                model.addAttribute("error", "Unsupported file type. Only images and videos are allowed.");
+	                return "gallery.jsp"; // Return to the gallery page with the error
 	            }
+
 	            // Generate a unique file name
 	            String uniqueFileName = UUID.randomUUID() + "_" + originalFilename;
 
@@ -144,11 +159,24 @@ public class MainController {
 
 	            // Save the media details in the database
 	            mediaService.saveMedia(uniqueFileName, caption, userService.findUser(userId), mediaType);
+
 	        } catch (IOException e) {
-	            System.out.print("error"+ "Failed to upload media: " + e.getMessage());
+	        	model.addAttribute("mediaList", mediaService.getAllMedia());
+	            model.addAttribute("error", "Failed to upload media due to an internal error: " + e.getMessage());
+	            return "gallery.jsp"; // Return to the gallery page with the error
+	        } catch (RuntimeException e) {
+	        	model.addAttribute("mediaList", mediaService.getAllMedia());
+	            model.addAttribute("error", "Invalid file or unsupported file type: " + e.getMessage());
+	            return "gallery.jsp"; // Return to the gallery page with the error
 	        }
 
-	        return "redirect:/gallery";
+	        return "redirect:/gallery"; // Success, redirect to gallery
+	    }
+
+	    @DeleteMapping("/medias/{id}/delete")
+	    public String removeMedia(@PathVariable("id") Long id) {
+	    	mediaService.deleteMedia(id);
+	    	return "redirect:/gallery";
 	    }
 	    
 }
