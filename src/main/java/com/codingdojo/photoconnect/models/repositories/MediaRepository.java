@@ -29,4 +29,15 @@ public interface MediaRepository extends CrudRepository<Media, Long> {
     nativeQuery = true)
 	List<Media> findUserMediaOrderedByLikes(@Param("userId") Long userId);
 	
+	
+	    @Query(value = "SELECT SUM(like_count) FROM ( " +
+	                   "SELECT COUNT(*) AS like_count " +
+	                   "FROM likes l " +
+	                   "JOIN medias m ON m.id = l.media_id " +
+	                   "WHERE m.user_id = :userId " +
+	                   "GROUP BY m.id) AS subquery", 
+	           nativeQuery = true)
+	    Long countLikesForUserUploadedMedia(@Param("userId") Long userId);
+	
+	
 }

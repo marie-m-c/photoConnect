@@ -65,7 +65,7 @@ public class MainController {
 		Long userId = (Long) session.getAttribute("userId");
 		model.addAttribute("currentUser", userService.findUser(userId));
 		model.addAttribute("profileUser", userService.findUser(id));
-		
+		model.addAttribute("likes", mediaService.getTotalLikesForUserUploadedMedia(id));
 		model.addAttribute("mediaList", mediaService.getAllUserMedia(id));
 		return "profile.jsp";
 	}

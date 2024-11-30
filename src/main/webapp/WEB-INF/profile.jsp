@@ -71,12 +71,18 @@ pageEncoding="ISO-8859-1"%> <%@ taglib prefix = "c" uri ="http://java.sun.com/js
 		</div>
 		<!-- Page Content -->
 		<main class="m-4 p-4">
+			<section>
+			<div class="container">
+				<h3 class="text-start text-primary mb-4"><c:out value="${profileUser.userName}" /></h3>
+				<p>Alias <c:out value="${profileUser.alias}" /></p>
+				<p><i class="fas fa-envelope"></i>  <c:out value="${profileUser.email}" /></p></p>
+			</div>
+			</section>
 			
-			
-			
+			<hr/>
 			<section>
 				<div class="container mt-4">
-					<h3 class="text-start text-primary mb-4">Album(<c:out value="${fn:length(mediaList)}" />)</h3>
+					<h4 class="text-start text-primary mb-4">Album(<c:out value="${fn:length(mediaList)}" />) Likes(<span><c:out value="${likes}" /></span>)</h4>
     				<div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
         				<c:forEach var="media" items="${mediaList}">
             				<div class="col">

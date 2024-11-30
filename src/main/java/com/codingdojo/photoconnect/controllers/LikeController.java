@@ -2,6 +2,7 @@ package com.codingdojo.photoconnect.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,5 +35,11 @@ public class LikeController {
         int likesCount = media.getLikes().size();
         System.out.print("****likes ****** " + likesCount);
         return ResponseEntity.ok(likesCount);
+    }
+    
+    @GetMapping("/user/{userId}/count")
+    public ResponseEntity<Long> getLikesCountForUserUploadedMedia(@PathVariable Long userId) {
+        Long totalLikes = mediaService.getTotalLikesForUserUploadedMedia(userId);
+        return ResponseEntity.ok(totalLikes);
     }
 }

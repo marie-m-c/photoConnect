@@ -33,6 +33,10 @@ public class MediaService {
         return mediaRepository.findUserMediaOrderedByLikes(userId); // Fetch all media from the database
     }
 	
+	public Long getTotalLikesForUserUploadedMedia(Long userId) {
+        return mediaRepository.countLikesForUserUploadedMedia(userId);
+    }
+	
 	public void deleteMedia(Long id) {
 		mediaRepository.deleteById(id);
 	}
