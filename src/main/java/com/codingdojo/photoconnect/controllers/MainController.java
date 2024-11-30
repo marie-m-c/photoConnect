@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -60,7 +61,7 @@ public class MainController {
 	@GetMapping("/profile/{userId}")
 	public String userProfile(@PathVariable("userId") Long id, Model model, HttpSession session) {
 		if (session.getAttribute("userId") == null ) {
-			return "redirect:/gallery";
+			return "redirect:/login";
     	}
 		Long userId = (Long) session.getAttribute("userId");
 		model.addAttribute("currentUser", userService.findUser(userId));
@@ -73,7 +74,7 @@ public class MainController {
 	@GetMapping("/medias/{mediaId}")
 	public String mediaDetails(@PathVariable("mediaId") Long id, Model model, HttpSession session) {
 		if (session.getAttribute("userId") == null ) {
-			return "redirect:/gallery";
+			return "redirect:/login";
     	}
 		
 		model.addAttribute("media", mediaService.findMedia(id));
@@ -209,6 +210,28 @@ public class MainController {
 	    		return "redirect:/profile/" + userId;
 	    	}
 	    	return "redirect:/gallery";
+	    }
+	    
+	    @PostMapping("/medias/{id}/edit")
+	    public String editMedia(@PathVariable("id") Long id, Model model, HttpSession session) {
+	    	if (session.getAttribute("userId") == null ) {
+	    		return "redirect:/";
+	    	}
+	    	model.addAttribute("media", mediaService.findMedia(id));
+	    	return "edit.jsp";
+	    }
+	    
+	    @PostMapping("/medias/update/{id}")
+	    public String updateMedia(@RequestParam("caption") String caption, @PathVariable("id") Long id, Model model) {
+	          Media media = mediaService.findMedia(id);
+	          if (caption == null || caption.trim().length() < 3 || caption.trim().length() > 30) {
+	        	  model.addAttribute("error", "Caption must be between 3 and 30 characters.");
+	        	  model.addAttribute("media", media);
+	        	  return "edit.jsp";
+	    	}
+	          media.setCaption(caption);
+	          mediaService.updateMedia(media);
+	         return "redirect:/medias/" + id;
 	    }
 	    
 }

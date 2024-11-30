@@ -62,4 +62,8 @@ public class MediaService {
 	         return null;
 	     }
 	 }
+    
+    public Media updateMedia(Media media) {
+ 	   return mediaRepository.save(media);
+ 	}
 }

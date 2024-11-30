@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 pageEncoding="ISO-8859-1"%> <%@ taglib prefix = "c" uri ="http://java.sun.com/jsp/jstl/core" %>
+<%@ page isErrorPage="true" %>    
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -81,45 +83,24 @@ pageEncoding="ISO-8859-1"%> <%@ taglib prefix = "c" uri ="http://java.sun.com/js
                    </c:choose>
                 </div>
                 <div class="mt-4 ms-4" style="line-height: 1rem; font-size: 1rem;width: 300px;">
-                	<p><a href="/profile/${media.user.id}" class="text-decoration-none text-primary"><c:out value="${media.user.alias}"/>:</a>&nbsp;&nbsp;<c:out value="${media.caption}"/></p>
+                	<p><a href="/profile/${media.user.id}" class="text-decoration-none text-primary"><c:out value="${media.user.alias}"/></a></p>
                 	<c:if test="${media.getUser().getId() == userId }">
- 							<form action="/medias/${media.getId()}/edit" method="post">
- 								<label for="update" class="text-primary text-decoration-underline mb-3">update caption</label>
- 								<input type="submit" class="d-none" value="edit" id="update" />
+ 							<form action="/medias/update/${media.getId()}" method="post" class="form w-100">
+        							<label class="mt-2">Caption</label>
+        							<textarea class="form-control mt-2 w-100" name="caption" rows="5">${media.caption }</textarea>
+        							<input type="submit" class="text-light bg-secondary py-2 px-4 rounded mt-4" value="Update" />
  							</form>
+ 							<c:if test="${not empty error}">
+    							<div class="alert alert-danger cursor-pointer mt-2" onclick="this.style.display='none'">
+        							${error}
+    							</div>
+							</c:if>
  					</c:if>
-                	<p class="text-primary toggle-likes" style="cursor: pointer;">
-                		<c:out value="${media.getLikes().size()}"/> ${media.getLikes().size() == 1 ? 'person' : 'peaple'} liked this:
-                	</p>
-        			<div class="d-none rounded border p-1 ms-2 likes-list" style="overflow: scroll;scrollbar-width: none;">
-            			<ul class="list-unstyled" style="max-height: 300px;">
-                			<c:forEach var="user" items="${media.likes}">
-                    			<li class="text-secondary mb-1">
-                    				<a href="/profile/${user.id }" class="text-decoration-none">
-                    					<c:out value="${user.userName}"/>
-                    				</a>
-                    			</li>
-                			</c:forEach>
-            			</ul>
-        			</div>
                 </div>
 			</div>			
 		</main>
 	</div>	
 	<script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
-	<script>
-	document.addEventListener('DOMContentLoaded', () => {
-	    // Attach a click event to all elements with the class 'toggle-likes'
-	    document.querySelectorAll('.toggle-likes').forEach((toggleButton) => {
-	        toggleButton.addEventListener('click', (event) => {
-	            // Find the next sibling div with the class 'likes-list' and toggle the 'd-none' class
-	            const likesList = event.target.nextElementSibling;
-	            if (likesList) {
-	                likesList.classList.toggle('d-none');
-	            }
-	        });
-	    });
-	});
-	</script>     	
+	   	
 </body>
 </html>
