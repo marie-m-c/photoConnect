@@ -57,6 +57,31 @@ public class MainController {
 		return "gallery.jsp";
 	}
 	
+	@GetMapping("/profile/{userId}")
+	public String userProfile(@PathVariable("userId") Long id, Model model, HttpSession session) {
+		if (session.getAttribute("userId") == null ) {
+			return "redirect:/gallery";
+    	}
+		Long userId = (Long) session.getAttribute("userId");
+		model.addAttribute("currentUser", userService.findUser(userId));
+		model.addAttribute("profileUser", userService.findUser(id));
+		
+		model.addAttribute("mediaList", mediaService.getAllUserMedia(id));
+		return "profile.jsp";
+	}
+	
+	@GetMapping("/medias/{mediaId}")
+	public String mediaDetails(@PathVariable("mediaId") Long id, Model model, HttpSession session) {
+		if (session.getAttribute("userId") == null ) {
+			return "redirect:/gallery";
+    	}
+		
+		model.addAttribute("media", mediaService.findMedia(id));
+		return "media.jsp";
+	}
+	
+	
+	
 	@GetMapping("/login")
 	public String login(@ModelAttribute("newLogin")LoginUser newLogin) {
 		return "login.jsp";
@@ -176,9 +201,13 @@ public class MainController {
 	        return "redirect:/gallery"; // Success, redirect to gallery
 	    }
 
-	    @DeleteMapping("/medias/{id}/delete")
-	    public String removeMedia(@PathVariable("id") Long id) {
+	    @DeleteMapping("/medias/{source}/{id}/delete")
+	    public String removeMedia(@PathVariable("source")String source, @PathVariable("id") Long id, HttpSession session) {
 	    	mediaService.deleteMedia(id);
+	    	if (source.equals("profile")) {
+	    		Long userId = (Long) session.getAttribute("userId");
+	    		return "redirect:/profile/" + userId;
+	    	}
 	    	return "redirect:/gallery";
 	    }
 	    

@@ -354,4 +354,8 @@ video {
     	height: 40px;
     	padding: 5px 50px;
     }
+    
+    .media-details {
+    	flex-direction: column;
+    }
 }

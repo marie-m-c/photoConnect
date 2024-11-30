@@ -26,7 +26,11 @@ public class MediaService {
     }
 	
 	public List<Media> getAllMedia() {
-        return mediaRepository.findAll(); // Fetch all media from the database
+        return mediaRepository.findAllOrderedByLikes(); // Fetch all media from the database
+    }
+	
+	public List<Media> getAllUserMedia(Long userId) {
+        return mediaRepository.findUserMediaOrderedByLikes(userId); // Fetch all media from the database
     }
 	
 	public void deleteMedia(Long id) {

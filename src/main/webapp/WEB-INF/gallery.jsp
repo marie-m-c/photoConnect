@@ -9,10 +9,10 @@ pageEncoding="ISO-8859-1"%> <%@ taglib prefix = "c" uri ="http://java.sun.com/js
 <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PhotoConnect</title>
-    <link rel="stylesheet" href="fonts/fontawesome/css/all.min.css"> <!-- https://fontawesome.com/ -->
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/fonts/fontawesome/css/all.min.css"> <!-- https://fontawesome.com/ -->
     <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 </head>
 <body>
 	<div class="mx-auto">
@@ -118,7 +118,7 @@ pageEncoding="ISO-8859-1"%> <%@ taglib prefix = "c" uri ="http://java.sun.com/js
                         			</c:choose>
                         			</div>
                         			<c:if test="${media.getUser().getId() == userId }">
- 									<form action="/medias/${media.getId()}/delete" method="post">
+ 									<form action="/medias/gallery/${media.getId()}/delete" method="post">
  										<input type="hidden" name="_method" value="delete" />
  										<label for="delete-media-${media.getId()}" class="position-absolute delete-cross"><i class="fas fa-times delete-cross-icon"></i></label>
  										<input type="submit" class="d-none" value="delete" id="delete-media-${media.getId()}" />
@@ -128,11 +128,13 @@ pageEncoding="ISO-8859-1"%> <%@ taglib prefix = "c" uri ="http://java.sun.com/js
                     					<c:choose>
                     						<c:when test="${loggedIn}">
                         						<p class="position-absolute" style="bottom: -55px; left: 5px;">
-                        							<a href="/profile/${userId }" class="text-primary text-decoration-none">${media.user.getAlias()} : </a>${fn:substring(media.caption, 0, 3)}..
+                        							<a href="/profile/${media.user.id }" class="text-primary text-decoration-none">${media.user.getAlias()} : </a>${fn:substring(media.caption, 0, 3)}..
                         						</p>
                         						<p class="position-absolute" style="bottom: -55px; right: 5px;">
                         							<i class="fas fa-thumbs-up like-icon ${media.likedByUser(currentUser) ? 'text-primary' : ''}" data-media-id="${media.id}"></i>&nbsp;&nbsp;
-                            						<span class="text-primary"><span class="like-count">${media.getLikes().size()}</span> likes</span>
+                            						<span class="text-primary" style="cursor: pointer;" onclick="window.location.href='/medias/${media.id}'">
+                            							<span class="like-count">${media.getLikes().size()}</span> like(s)
+                            						</span>
                         						</p>
                         					</c:when>
                         					<c:otherwise>
@@ -140,7 +142,9 @@ pageEncoding="ISO-8859-1"%> <%@ taglib prefix = "c" uri ="http://java.sun.com/js
                         							<a href="/login" class="text-primary text-decoration-none">${media.user.getAlias()} : </a>${fn:substring(media.caption, 0, 3)}..
                         						</p>
                         						<p class="position-absolute" style="bottom: -55px; right: 5px;">
-                            						<span class="text-primary"><span class="like-count">${media.getLikes().size()}</span> likes</span>
+                            						<span class="text-primary" style="cursor: pointer;" onclick="window.location.href='/login'">
+                            						<span class="like-count">${media.getLikes().size()}</span> like(s)
+                            						</span>
                         						</p>
                         					</c:otherwise>
                         				</c:choose>
@@ -188,15 +192,12 @@ pageEncoding="ISO-8859-1"%> <%@ taglib prefix = "c" uri ="http://java.sun.com/js
                         icon.classList.toggle('text-primary', !isLiked);
 
                         const likeCountSpan = icon.nextElementSibling;
-                        likeCountSpan.textContent = data + "  likes";
+                        likeCountSpan.textContent = data + "  like(s)";
                 })
                 .catch(error => console.error("Error during fetch:", error));
             });
         });
     });
-</script>
-
-
-	
+</script>	
 </body>
 </html>
