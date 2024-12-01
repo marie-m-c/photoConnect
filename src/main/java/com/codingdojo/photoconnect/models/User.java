@@ -13,6 +13,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Email;
@@ -32,7 +33,7 @@ public class User {
     private String userName;
     
     @NotEmpty(message="Alias is required!")
-    @Size(min=3, max=30, message="Alias must be between 3 and 20 characters")
+    @Size(min=3, max=10, message="Alias must be between 3 and 10 characters")
     private String alias;
     
     @NotEmpty(message="Email is required!")
@@ -63,7 +64,15 @@ public class User {
     private List<Media> likedMedias;
     
     public User() {}
-
+    
+    @PrePersist
+    public void initializeProfileData() {
+    	if (profileData == null) {
+    		profileData = new ProfileData();
+    		profileData.setUser(this);
+    	}
+    }
+    
 	public Long getId() {
 		return id;
 	}

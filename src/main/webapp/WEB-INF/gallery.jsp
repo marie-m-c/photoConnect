@@ -82,15 +82,16 @@ pageEncoding="ISO-8859-1"%> <%@ taglib prefix = "c" uri ="http://java.sun.com/js
         				${error}
     				</div>
 				</c:if>
+				
 				<div class="border">
-					<form action="/media/uploadFile/${userId}" method="post" enctype="multipart/form-data" class="form d-flex align-items-center justify-content-between form-upload">
+					<form action="/media/uploadFile/${userId}" method="post" enctype="multipart/form-data" class="form d-flex flex-columns align-items-center justify-content-between form-upload">
 						<div class="me-4">
   							<label for="mediaFile" class="form-label text-primary ms-4">Media <i class="fas fa-image"></i> <i class="fas fa-video"></i></label>
   							<input class="form-control-sm d-none" type="file" id="mediaFile" name="file" required>
 						</div>
-						<div class="me-4">
-  							<label for="media-caption" class="form-label text-primary">caption </label>
-  							<input class="form-control-sm" id="media-caption" name="caption" required>
+						<div class="form-floating">
+  							<label for="media-caption" style="color: rgb(13,110,253,0.5);">caption </label>
+  							<textarea class="form-control-sm" id="media-caption" name="caption" placeholder="caption" row="3"> </textarea>
 						</div>
 						<button type="submit" class="btn btn-primary"> Upload </button>
 					</form>

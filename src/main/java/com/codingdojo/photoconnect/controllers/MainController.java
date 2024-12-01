@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -152,8 +151,8 @@ public class MainController {
 	            }
 	            
 	         // Validate caption length (3 to 30 characters)
-	            if (caption == null || caption.trim().length() < 3 || caption.trim().length() > 30) {
-	                model.addAttribute("error", "Caption must be between 3 and 30 characters.");
+	            if (caption == null || caption.trim().length() < 3 || caption.trim().length() > 150) {
+	                model.addAttribute("error", "Caption must be between 3 and 150 characters.");
 	                return "gallery.jsp";
 	            }
 
@@ -224,8 +223,8 @@ public class MainController {
 	    @PostMapping("/medias/update/{id}")
 	    public String updateMedia(@RequestParam("caption") String caption, @PathVariable("id") Long id, Model model) {
 	          Media media = mediaService.findMedia(id);
-	          if (caption == null || caption.trim().length() < 3 || caption.trim().length() > 30) {
-	        	  model.addAttribute("error", "Caption must be between 3 and 30 characters.");
+	          if (caption == null || caption.trim().length() < 3 || caption.trim().length() > 150) {
+	        	  model.addAttribute("error", "Caption must be between 3 and 150 characters.");
 	        	  model.addAttribute("media", media);
 	        	  return "edit.jsp";
 	    	}

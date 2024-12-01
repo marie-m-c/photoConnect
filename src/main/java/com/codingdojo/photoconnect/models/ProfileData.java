@@ -34,9 +34,6 @@ public class ProfileData {
 	@Pattern(regexp = "^(https?:\\/\\/)?(www\\.)?instagram\\.com\\/.*$", 
             message = "Invalid Instagram URL.")
     private String instagramLink;
-    
-	@Email(message = "Invalid email address.")
-    private String contactEmail;
 	
 	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="user_id")
@@ -82,14 +79,6 @@ public class ProfileData {
 
 	public void setInstagramLink(String instagramLink) {
 		this.instagramLink = instagramLink;
-	}
-
-	public String getContactEmail() {
-		return contactEmail;
-	}
-
-	public void setContactEmail(String contactEmail) {
-		this.contactEmail = contactEmail;
 	}
 
 	public User getUser() {

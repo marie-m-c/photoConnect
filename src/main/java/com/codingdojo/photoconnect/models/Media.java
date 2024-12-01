@@ -2,6 +2,7 @@ package com.codingdojo.photoconnect.models;
 
 import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -36,7 +37,8 @@ public class Media {
 	@NotNull(message="Media must be uploaded")
 	private String media;
 	
-	@Size(min=3, max=30, message="Caption must be between 3 and 30 characters")
+	@Size(min=3, max=150, message="Caption must be between 3 and 150 characters")
+	@Column(columnDefinition="Text")
 	private String caption;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
