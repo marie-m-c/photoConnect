@@ -8,7 +8,7 @@ pageEncoding="ISO-8859-1"%> <%@ taglib prefix = "c" uri ="http://java.sun.com/js
 <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PhotoConnect</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/fonts/fontawesome/css/all.min.css"> <!-- https://fontawesome.com/ -->
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/fonts/fontawesome/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
@@ -72,11 +72,65 @@ pageEncoding="ISO-8859-1"%> <%@ taglib prefix = "c" uri ="http://java.sun.com/js
 		<!-- Page Content -->
 		<main class="m-4 p-4">
 			<section>
-			<div class="container">
-				<h3 class="text-start text-primary mb-4"><c:out value="${profileUser.userName}" /></h3>
-				<p>Alias <c:out value="${profileUser.alias}" /></p>
-				<p><i class="fas fa-envelope"></i>  <c:out value="${profileUser.email}" /></p></p>
+			<div class="container d-flex gap-4 mb-4 user-data-container">
+				<div class="d-flex align-items-center gap-2">
+					<c:if test="${profileUser.id == userId }">
+    				<form action="/profile/picture/update/${profileData.id}" method="post" enctype="multipart/form-data" id="profilePictureForm">
+                		<input type="hidden" name="_method" value="put">
+                		<div class="rounded-circle overflow-hidden position-relative" style="width: 150px; height: 150px; border: 2px solid #ddd;">
+                    	<c:choose>
+    						<c:when test="${profileData.profilePicture != null}">
+        						<img src="${pageContext.request.contextPath}/uploads/${profileData.profilePicture}"
+        						alt="Profile Picture" class="w-100 h-100" 
+        						onclick="document.getElementById('profilePictureInput').click();">
+    						</c:when>
+    						<c:otherwise>
+        						<img src="${pageContext.request.contextPath}/images/placeholder.png"
+        						alt="Profile Picture" class="w-100 h-100"
+        						onclick="document.getElementById('profilePictureInput').click();">
+    						</c:otherwise>
+						</c:choose>
+                    		<input 
+                        		type="file" 
+                        		name="profilePicture" 
+                        		id="profilePictureInput" 
+                        		class="d-none" 
+                        		accept="image/*" 
+                        		onchange="document.getElementById('profilePictureForm').submit();"
+                    		>
+                		</div>
+            		</form>
+            		</c:if>
+            		<c:if test="${profileUser.id != userId }">
+            		<div class="rounded-circle overflow-hidden position-relative" style="width: 150px; height: 150px; border: 2px solid #ddd;">
+            			<img src="${pageContext.request.contextPath}/uploads/${profileData.profilePicture}"
+        						alt="Profile Picture" class="w-100 h-100" >
+            		</div>
+            		</c:if>
+        			<h3 class="text-primary align-self-end" style="margin-left: -20px;">
+        				<c:out value="${profileUser.userName}" />
+        			</h3>
+				</div>
+				<div style="line-height: 1rem;" class="align-self-end">
+					<p>Alias <c:out value="${profileUser.alias}" /></p>
+					<p><i class="fas fa-envelope"></i>  <c:out value="${profileUser.email}" /></p>
+					<c:if test="${profileData.getLinkedinLink() != null}">
+						<p><i class="fab fa-linkedin"></i> <c:out value="${profileData.linkedinLink}" /></p>
+					</c:if>
+					<c:if test="${profileData.getInstagramLink() != null}">
+						<p><i class="fab fa-instagram"></i> <c:out value="${profileData.instagramLink}" /></p>
+					</c:if>
+				</div>
 			</div>
+			<c:if test="${profileData.getBio() != null}">
+				<p class="ms-4 ps-4"><c:out value="${profileData.bio}" /></p>
+			</c:if>
+			<c:if test="${profileUser.getId() == userId }">
+ 							<form action="/profileData/${profileData.getId()}/edit" method="post">
+ 								<label for="update" class="text-primary text-decoration-underline ms-4 ps-4">edit profile data</label>
+ 								<input type="submit" class="d-none" value="edit" id="update" />
+ 							</form>
+ 					</c:if>
 			</section>
 			
 			<hr/>
@@ -178,6 +232,7 @@ pageEncoding="ISO-8859-1"%> <%@ taglib prefix = "c" uri ="http://java.sun.com/js
             });
         });
     });
-</script>	
+</script>
+	
 </body>
 </html>

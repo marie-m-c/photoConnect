@@ -14,13 +14,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.codingdojo.photoconnect.models.LoginUser;
 import com.codingdojo.photoconnect.models.Media;
+import com.codingdojo.photoconnect.models.ProfileData;
 import com.codingdojo.photoconnect.models.User;
 import com.codingdojo.photoconnect.services.MediaService;
+import com.codingdojo.photoconnect.services.ProfileDataService;
 import com.codingdojo.photoconnect.services.UserService;
 
 import jakarta.servlet.http.HttpSession;
@@ -35,7 +38,11 @@ public class MainController {
 	@Autowired
 	private UserService userService;
 	
-	@Autowired MediaService mediaService;
+	@Autowired 
+	private MediaService mediaService;
+	
+	@Autowired
+	private ProfileDataService profileDataService;
 	
 	@GetMapping("/")
 	public String home() {
@@ -57,14 +64,15 @@ public class MainController {
 		return "gallery.jsp";
 	}
 	
-	@GetMapping("/profile/{userId}")
-	public String userProfile(@PathVariable("userId") Long id, Model model, HttpSession session) {
+	@GetMapping("/profile/{Id}")
+	public String userProfile(@PathVariable("Id") Long id, Model model, HttpSession session) {
 		if (session.getAttribute("userId") == null ) {
 			return "redirect:/login";
     	}
 		Long userId = (Long) session.getAttribute("userId");
 		model.addAttribute("currentUser", userService.findUser(userId));
 		model.addAttribute("profileUser", userService.findUser(id));
+		model.addAttribute("profileData", profileDataService.findProfileDataByUserId(id));
 		model.addAttribute("likes", mediaService.getTotalLikesForUserUploadedMedia(id));
 		model.addAttribute("mediaList", mediaService.getAllUserMedia(id));
 		return "profile.jsp";
@@ -231,6 +239,69 @@ public class MainController {
 	          media.setCaption(caption);
 	          mediaService.updateMedia(media);
 	         return "redirect:/medias/" + id;
+	    }
+	    
+	    @PostMapping("/profileData/{id}/edit")
+	    public String editProfileData(@PathVariable("id") Long id, Model model, HttpSession session) {
+	    	if (session.getAttribute("userId") == null ) {
+	    		return "redirect:/";
+	    	}
+	    	model.addAttribute("profileData", profileDataService.findProfileData(id));
+	    	return "editProfileData.jsp";
+	    }
+	    
+	    @PutMapping("/profileData/update/{id}")
+	    public String updateProfile(@Valid @ModelAttribute ProfileData profileData, BindingResult result,
+	    		Model model, @PathVariable("id") Long id) {
+	    	ProfileData existingProfile = profileDataService.findProfileData(id);
+	    	profileData.setUser(existingProfile.getUser());
+	    	profileData.setProfilePicture(existingProfile.getProfilePicture());
+	    	if (result.hasErrors()) {
+	    		model.addAttribute("profileData", profileData);
+	    		return "editProfileData.jsp";
+	    	} else {
+	    		profileDataService.updateProfileData(profileData);
+	    		return "redirect:/profile/" + profileData.getUser().getId();
+	    	}
+	    }
+	    
+	    @PutMapping("/profile/picture/update/{id}")
+	    public String updateProfilePicture(@RequestParam("profilePicture") MultipartFile file,
+	    		@PathVariable("id") Long id) {
+	        ProfileData profileData = profileDataService.findProfileData(id);
+	        
+	        if (file.getSize() > (100 * 1024 * 1024)) {
+	        	return "redirect:/profile/" + profileData.getUser().getId();
+	        }
+	        
+	        
+	        String originalFilename = file.getOriginalFilename();
+	        if (originalFilename == null || !originalFilename.contains(".")) {
+	        	return "redirect:/profile/" + profileData.getUser().getId();
+	        }
+
+	        String extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
+	            if (!extension.matches("(?i)(jpg|jpeg|png|gif)")) {
+	            	return "redirect:/profile/" + profileData.getUser().getId();
+	            }
+	            
+	        String uniqueFileName = UUID.randomUUID() + "_" + originalFilename;
+	            File storageDirectory = new File(storagePath);
+	            if (!storageDirectory.exists()) {
+	                storageDirectory.mkdirs();
+	            }
+	            File destinationFile = new File(storageDirectory, uniqueFileName);
+	            try {
+	            	file.transferTo(destinationFile);
+	            }  catch (IOException e) {
+	            	
+	            	return "redirect:/profile/" + profileData.getUser().getId();
+	            }
+	           profileData.setProfilePicture(uniqueFileName);
+	           profileDataService.updateProfileData(profileData);
+
+	        return "redirect:/profile/" + profileData.getUser().getId();
+	        
 	    }
 	    
 }
